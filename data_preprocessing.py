@@ -23,17 +23,22 @@ Y = dataset.iloc[:, price_index].values
 
 # Encoding categorical data
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+
+# Check if a column is categorical or not
+def is_categorical(column):
+    return column.dtype.name == 'category' or column.dtype.name == 'object'
+
 labelencoder_X = LabelEncoder()
-X[:, 1] = labelencoder_X.fit_transform(X[:, 1])
+
+for column in dataset:
+    if is_categorical(dataset[column]):
+        index = dataset.columns.get_loc(column)
+        X[:, index] = labelencoder_X.fit_transform(X[:, index])
 
 # onehotencoder = OneHotEncoder(categorical_features=[1])
 # X[:, 1] = onehotencoder.fit_transform(X).toarray()
 
-
 print(X)
 
 
-# Check if a column is categorical or not
-def is_categorical(column):
-    return column.dtype.name == 'category'
 
