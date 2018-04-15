@@ -21,4 +21,19 @@ Y = dataset.iloc[:, price_index].values
 # imputer = imputer.fit(X)
 # X = imputer.transform(X)
 
+# Encoding categorical data
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+labelencoder_X = LabelEncoder()
+X[:, 1] = labelencoder_X.fit_transform(X[:, 1])
+
+# onehotencoder = OneHotEncoder(categorical_features=[1])
+# X[:, 1] = onehotencoder.fit_transform(X).toarray()
+
+
+print(X)
+
+
+# Check if a column is categorical or not
+def is_categorical(column):
+    return column.dtype.name == 'category'
 
