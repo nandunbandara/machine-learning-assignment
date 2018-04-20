@@ -7,7 +7,7 @@ np.set_printoptions(threshold=np.nan)
 
 def preprocess_data(path):
     # Import dataset
-    dataset = pd.read_csv('./data/train.csv')
+    dataset = pd.read_csv(path)
     dataset.drop('Id', axis=1, inplace=True)
 
     # Features matrix
@@ -23,7 +23,7 @@ def preprocess_data(path):
         return column.dtype.name == 'category' or column.dtype.name == 'object'
 
     def is_numerical(column):
-        return column.dtype.name == 'int64'
+        return column.dtype.name == 'int64' or column.dtype.name == 'float64'
 
     # Encoding categorical data
     from sklearn.preprocessing import LabelEncoder, OneHotEncoder
