@@ -1,56 +1,50 @@
 # Import libraries
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 np.set_printoptions(threshold=np.nan)
 
 def preProcessTrainingData(path):
     # Import dataset
-    df = pd.read_csv(path)
-    # df.drop('Name', axis=1, inplace=True)
-    # df.drop('Ticket', axis=1, inplace=True)
-    # df.drop('Fare', axis=1, inplace=True)
-    # df.drop('Embarked', axis=1, inplace=True)
+    dataFrame = pd.read_csv(path)
     include = ['Age', 'Sex', 'Embarked', 'Survived']
-    df_ = df[include]
+    dataFrame_ = dataFrame[include]
 
     categoricals = []
-    for col, col_type in df_.dtypes.iteritems():
+    for col, col_type in dataFrame_.dtypes.iteritems():
         if col_type == 'O':
             categoricals.append(col)
         else:
-            df_[col].fillna(0, inplace=True)
+            dataFrame_[col].fillna(0, inplace=True)
 
-    df_ohe = pd.get_dummies(df_, columns=categoricals, dummy_na=True)
+    dataFrameEncoded = pd.get_dummies(dataFrame_, columns=categoricals, dummy_na=True)
 
     dependent_variable = 'Survived'
-    x = df_ohe[df_ohe.columns.difference([dependent_variable])]
-    y = df_ohe[dependent_variable]
+    x = dataFrameEncoded[dataFrameEncoded.columns.difference([dependent_variable])]
+    y = dataFrameEncoded[dependent_variable]
 
-    return x,y
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.33, random_state=42)
+
+    return x_train, x_test, y_train, y_test
 
 def preProcessTestData(path):
     # Import dataset
-    df = pd.read_csv(path)
-    # df.drop('Name', axis=1, inplace=True)
-    # df.drop('Ticket', axis=1, inplace=True)
-    # df.drop('Fare', axis=1, inplace=True)
-    # df.drop('Embarked', axis=1, inplace=True)
+    dataFrame = pd.read_csv(path)
 
-    df_ = df[['Age', 'Sex', 'Embarked']]
+    dataFrame_ = dataFrame[['Age', 'Sex', 'Embarked']]
 
     categoricals = []
-    for col, col_type in df_.dtypes.iteritems():
+    for col, col_type in dataFrame_.dtypes.iteritems():
         if col_type == 'O':
             categoricals.append(col)
         else:
-            df_[col].fillna(0, inplace=True)
+            dataFrame_[col].fillna(0, inplace=True)
 
-    df_ohe = pd.get_dummies(df_, columns=categoricals, dummy_na=True)
+    dataFrameEncoded = pd.get_dummies(dataFrame_, columns=categoricals, dummy_na=True)
 
 
-    return df_ohe
+    return dataFrameEncoded
 
 
 
