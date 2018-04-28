@@ -10,7 +10,7 @@ x_train, x_test, y_train, y_test = dp.preProcessTrainingData(TRAIN_DATA_PATH)
 # using a random forest classifier (can be any classifier)
 from sklearn.ensemble import RandomForestClassifier as rf
 
-classifier = rf(n_estimators=100, criterion='gini', min_samples_split=2, min_samples_leaf=1, bootstrap=True, oob_score=True,
+classifier = rf(n_estimators=100, criterion='gini', min_samples_split=1, min_samples_leaf=1, bootstrap=True, oob_score=True,
                 n_jobs=4, random_state=2, warm_start=False, class_weight=None)
 
 classifier.fit(x_train, y_train)
