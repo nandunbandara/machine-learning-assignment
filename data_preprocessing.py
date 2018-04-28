@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import Imputer
+from sklearn.preprocessing import StandardScaler
 
 np.set_printoptions(threshold=np.nan)
 
@@ -30,6 +31,13 @@ def preProcessTrainingData(path):
 
     x = dataFrameEncoded[dataFrameEncoded.columns.difference([dependent_variable])]
     y = dataFrameEncoded[dependent_variable]
+
+    # Scale the age variable
+    scaler = StandardScaler(copy=True, with_mean=True, with_std=True)
+    age = x[['Age']].values.astype(int)
+    age_scaled = scaler.fit_transform(age)
+    x['Age'] = age_scaled
+
 
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.33, random_state=42)
 
