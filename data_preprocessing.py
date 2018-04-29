@@ -1,60 +1,93 @@
-# Import libraries
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import Imputer
+from sklearn.preprocessing import MinMaxScaler
+import datetime as dt
+from dateutil.parser import parse
+
 
 np.set_printoptions(threshold=np.nan)
 
-def preProcessTrainingData(path):
+
+# check if a passed string in datetime format
+def is_date(string):
+    try:
+        parse(string)
+        return True
+    except ValueError:
+        return False
+
+
+def preprocess_training_data(path):
+
     # Import dataset
-    dataFrame = pd.read_csv(path)
-    include = ['Age', 'Sex', 'Embarked','SibSp', 'Parch','Cabin', 'Survived']
-    dataFrame_ = dataFrame[include]
+    dataframe = pd.read_csv(path)
 
-    categoricals = []
-    for col, col_type in dataFrame_.dtypes.iteritems():
+    include = ['URL_LENGTH', 'NUMBER_SPECIAL_CHARACTERS',
+               'CONTENT_LENGTH','WHOIS_COUNTRY','WHOIS_STATEPRO',
+               'WHOIS_REGDATE','WHOIS_UPDATED_DATE','TCP_CONVERSATION_EXCHANGE',
+               'DIST_REMOTE_TCP_PORT','REMOTE_IPS','APP_BYTES','SOURCE_APP_PACKETS',
+               'REMOTE_APP_PACKETS','APP_PACKETS','DNS_QUERY_TIMES','Type']
+
+    dataframe_ = dataframe[include]
+
+    # remove invalid datetime records
+    for i,v in dataframe_['WHOIS_REGDATE'].items():
+        if not is_date(v):
+            dataframe_.loc[i,['WHOIS_REGDATE']] = '19/03/2017 0:00'
+
+    for i, v in dataframe_['WHOIS_UPDATED_DATE'].items():
+        if not is_date(v):
+            dataframe_.loc[i,['WHOIS_UPDATED_DATE']] = '19/03/2017 0:00'
+
+    try:
+
+        # convert datetime records to timestamps
+        dataframe_.loc[:,'WHOIS_REGDATE'] = pd.to_datetime(dataframe_['WHOIS_REGDATE'])
+        dataframe_.loc[:,'WHOIS_REGDATE'] = dataframe_['WHOIS_REGDATE'].map(dt.datetime.toordinal)
+
+        dataframe_.loc[:,'WHOIS_UPDATED_DATE'] = pd.to_datetime(dataframe_['WHOIS_UPDATED_DATE'])
+        dataframe_.loc[:,'WHOIS_UPDATED_DATE'] = dataframe_['WHOIS_UPDATED_DATE'].map(dt.datetime.toordinal)
+
+    except ValueError:
+        print "ERROR: Invalid Date and Time"
+
+    categorical_columns = []
+    for col, col_type in dataframe_.dtypes.iteritems():
         if col_type == 'O':
-            categoricals.append(col)
-        # else:
-        #     dataFrame_[col].fillna(0, inplace=True)
+            categorical_columns.append(col)
 
-    dataFrameEncoded = pd.get_dummies(dataFrame_, columns=categoricals, dummy_na=True)
+    dataframe_encoded = pd.get_dummies(dataframe_, columns=categorical_columns, dummy_na=True)
 
+    # handle null values
     # set the mean value of the column for nan
-    imputer = Imputer(missing_values='NaN', strategy='mean', axis=0)
-    imputer = imputer.fit(dataFrameEncoded)
-    dataFrameEncoded[:] = imputer.transform(dataFrameEncoded[:])
+    impute = Imputer(missing_values='NaN', strategy='mean', axis=0)
+    impute = impute.fit(dataframe_encoded)
+    dataframe_encoded[:] = impute.transform(dataframe_encoded[:])
 
-    dependent_variable = 'Survived'
+    # separate dependent and independent variables
+    dependent_variable = 'Type'
 
-    x = dataFrameEncoded[dataFrameEncoded.columns.difference([dependent_variable])]
-    y = dataFrameEncoded[dependent_variable]
+    x = dataframe_encoded[dataframe_encoded.columns.difference([dependent_variable])]
+    y = dataframe_encoded[dependent_variable]
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.33, random_state=42)
+    # standardize the data set
+    scale = MinMaxScaler()
+    x = scale.fit_transform(x)
+
+    # split into train and test data sets
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
+
+    print "Training Dataset"
+    print "................"
+    print "Benign: %d" % sum(float(num) == 0 for num in y_train)
+    print "Malicious: %d" % sum(float(num) == 1 for num in y_train)
+
+    print "\nTest Dataset"
+    print "................"
+    print "Benign: %d" % sum(float(num) == 0 for num in y_test)
+    print "Malicious: %d" % sum(float(num) == 1 for num in y_test)
 
     return x_train, x_test, y_train, y_test
-
-def preProcessTestData(path):
-    # Import dataset
-    dataFrame = pd.read_csv(path)
-
-    dataFrame_ = dataFrame[['Age', 'Sex', 'Embarked']]
-
-    categoricals = []
-    for col, col_type in dataFrame_.dtypes.iteritems():
-        if col_type == 'O':
-            categoricals.append(col)
-        else:
-            dataFrame_[col].fillna(0, inplace=True)
-
-    dataFrameEncoded = pd.get_dummies(dataFrame_, columns=categoricals, dummy_na=True)
-
-
-    return dataFrameEncoded
-
-
-
-
-
 
