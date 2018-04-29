@@ -1,16 +1,15 @@
 import data_preprocessing as dp
 from sklearn.metrics import accuracy_score, mean_squared_error
+from sklearn.ensemble import RandomForestClassifier as rf
 
 
 DATA_PATH = './data/dataset.csv'
 
-x_train, x_test, y_train, y_test = dp.preProcessTrainingData(DATA_PATH)
+# get preprocessed data sets
+x_train, x_test, y_train, y_test = dp.preprocess_training_data(DATA_PATH)
 
 # using a random forest classifier
-from sklearn.ensemble import RandomForestClassifier as rf
-
-classifier = rf(n_estimators=100, criterion='gini', min_samples_leaf=1, bootstrap=True, oob_score=True,
-                n_jobs=1, random_state=2, warm_start=False, class_weight=None)
+classifier = rf(n_estimators=100, n_jobs=-1, max_features='auto')
 
 classifier.fit(x_train, y_train)
 
@@ -22,3 +21,6 @@ print ".........."
 print "Number of correct predictions: %d/%d" % (accuracy_score(y_test, prediction, normalize=False), y_test.size)
 print "Accuracy: %f" % (accuracy_score(y_test, prediction)*100)
 print "Mean Squared Error: %f" % mean_squared_error(y_test, prediction)
+
+import compare
+compare.compare_classifiers(x_train, x_test, y_train, y_test)
