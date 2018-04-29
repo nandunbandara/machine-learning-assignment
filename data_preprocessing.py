@@ -44,7 +44,7 @@ def preProcessTrainingData(path):
         dataframe_.loc[:,'WHOIS_UPDATED_DATE'] = dataframe_['WHOIS_UPDATED_DATE'].map(dt.datetime.toordinal)
 
     except ValueError:
-        print "ERROR"
+        print "ERROR: Invalid Date and Time"
 
     categorical_columns = []
     for col, col_type in dataframe_.dtypes.iteritems():
