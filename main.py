@@ -21,6 +21,3 @@ print ".........."
 print "Number of correct predictions: %d/%d" % (accuracy_score(y_test, prediction, normalize=False), y_test.size)
 print "Accuracy: %f" % (accuracy_score(y_test, prediction)*100)
 print "Mean Squared Error: %f" % mean_squared_error(y_test, prediction)
-
-import compare
-compare.compare_classifiers(x_train, x_test, y_train, y_test)
